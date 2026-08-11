@@ -1,219 +1,404 @@
 # Portfolio Optimizer
-A short Python project implementing mean-variance portfolio optimization from first principles using a custom matrix library.
+
+A short Python project implementing mean-variance portfolio optimization from first principles using a custom-made matrix library.
+
+The project was built primarily as an exercise in applying linear algebra, probability, and optimization to a quantitative finance problem.
 
 ## Overview
-The purpose of this project is to:
-- Calculate portfolio expected return
-- Calculate portfolio variance and volatility
-- Find the global minimum-variance portfolio
-- Find the minimum-variance portfolio for a specified target return
-- Generate the minimum-variance/efficient frontier
 
-## Mathematical Background
-The mathematical foundation of this project is based on the following mathematical results:
+The project implements functions to:
 
-### Expected Portfolio Return
-$$E(R_p) = \vec{w}^T\vec{\mu}$$
+* Calculate portfolio expected return
+* Calculate portfolio variance and volatility
+* Find the global minimum-variance portfolio
+* Find the minimum-variance portfolio for a given target return
+* Find a portfolio which maximises the Sharpe ratio
+* Generate the minimum-variance/efficient frontier
+
+All matrix operations used by the optimizer are performed using a custom matrix library developed separately from this project.
+
+---
+# Mathematical Background
+
+## Expected Portfolio Return
+
+The expected return of a portfolio is
+
+$$
+E(R_p)=\vec{w}^{,T}\vec{\mu}
+$$
+
 where:
-- $\vec{w}$ is the vector of weights assigned to each asset in the portfolio:
 
-$$\vec{w} = \begin{bmatrix}
-\vec{w_1} \\
-\vec{w_2} \\
-\vdots \\
-\vec{w_n}
+* $\vec{w}$ is the vector of portfolio weights:
+
+$$
+\vec{w}=
+\begin{bmatrix} 
+w_1\\
+w_2\\
+\vdots\\
+w_n
 \end{bmatrix}
 $$
 
-where $w_i$ is the weight assigned to the $i$-th asset
+where $w_i$ is the weight assigned to the $i$-th asset.
 
-- $\vec{\mu}$ is the vector of expected asset returns:
+* $\vec{\mu}$ is the vector of expected asset returns:
 
-$$\vec{\mu} = \begin{bmatrix}
-E(R_1) \\
-E(R_2) \\
-\vdots \\
+$$
+\vec{\mu}=
+\begin{bmatrix}
+E(R_1)\\
+E(R_2)\\
+\vdots\\
 E(R_n)
 \end{bmatrix}
 $$
 
-where $E(R_i)$ is the expected return on the $i$-th asset
+where $E(R_i)$ is the expected return of the $i$-th asset.
 
-### Portfolio Variance
-$$\mathrm{Var}(R_p) = \vec{w}^T\Sigma\,\vec{w}$$
-where:
-- $\vec{w}$ is the vector of weights assigned to each asset in the portfolio
-- $\Sigma$ is the covariance matrix
 
-If we have $n$ assets, the Covariance matrix is a $n \times n$ matrix whose $(i, j)^{th}$ entry is the Covariance between the returns of assets $i$ and $j$:
+## Portfolio Variance
 
-$$ \Sigma_{ij} = \mathrm{Cov}(R_i, R_j)$$
-where $R_k$ is the return on the $k^{th}$ asset  
-
-### Optimization
-
-This projects contains two functions to find the optimal weights: 
-
-1) optimal_weights
-
-this function takes the Covariance matrix as an input and outputs the weight vector $\vec{w}^*$. The weight vector can be found by minimising the portfolio variance subject to the constraint that the weights assigned to each asset all add up to 1:
+Portfolio variance can be written in matrix form as
 
 $$
-\min_w \; \vec{w}^T\Sigma\,\vec{w}
-\qquad \text{subject to} \qquad
-\vec{1}^T \vec{w} = 1
+\\mathrm{Var}(R_p) = \vec{w}^{,T}\Sigma\vec{w}
+$$
+
+where $\Sigma$ is the covariance matrix of asset returns.
+
+For $n$ assets, $\Sigma$ is an $n\times n$ matrix whose $(i,j)^{th}$ entry is the covariance between the returns of assets $i$ and $j$:
+
+$$
+\Sigma_{ij}=\mathrm{Cov}(R_i,R_j).
+$$
+
+The diagonal entries therefore contain the individual asset variances:
+
+$$
+\Sigma_{ii}=\\mathrm{Var}(R_i).
+$$
+
+The off-diagonal entries describe how the returns of different assets move together.
+
+---
+# Optimization
+
+## 1. Global Minimum-Variance Portfolio
+
+The first optimization problem is to minimize portfolio variance subject to the constraint that the portfolio weights add up to one:
+
+$$
+\min_{\vec{w}}\quad
+\vec{w}^{,T}\Sigma\vec{w}
+$$
+
+subject to
+
+$$
+\vec{1}^{T}\vec{w}=1,
 $$
 
 where $\vec{1}$ is a vector of ones with the same dimension as $\vec{w}$.
 
-The solution for this problem can be found using a Lagrange Multiplier method.
-
-Using a Lagrange multiplier $\lambda$, define the Lagrangian:
+Using a Lagrange multiplier $\lambda$, define
 
 $$
-L(\vec{w},\lambda)
-=
-\vec{w}^{\,T}\Sigma\vec{w}
--
-\lambda(\vec{1}^{\,T}\vec{w}-1)
+L(\vec{w},\lambda) = \vec{w}^{,T}\Sigma\vec{w}  - \lambda(\vec{1}^{,T}\vec{w}-1).
 $$
 
-Setting the derivative with respect to $\vec{w}$ equal to zero gives the first-order condition:
+Setting the derivative with respect to $\vec{w}$ equal to zero gives the first-order condition
 
 $$
-\frac{\partial L}{\partial \vec{w}}
-=
-2\Sigma\vec{w}-\lambda\vec{1}
-=
-0
+2\Sigma\vec{w}-\lambda\vec{1} = 0.
 $$
 
-Rearranging and multiplying by $\Sigma^{-1}$ gives:
+Rearranging:
 
 $$
-\vec{w}
-=
-\frac{\lambda}{2}\Sigma^{-1}\vec{1}
+\vec{w} = \frac{\lambda}{2}\Sigma^{-1}\vec{1}.
 $$
 
-We can determine $\lambda$ by applying the constraint $\vec{1}^{\,T}\vec{w}=1$:
+Applying the constraint $\vec{1}^{T}\vec{w}=1$:
 
 $$
-\vec{1}^{\,T}
+\vec{1}^{T}
 \left(
 \frac{\lambda}{2}\Sigma^{-1}\vec{1}
 \right)
-=1
+= 1.
 $$
 
-which gives:
+Therefore,
 
 $$
-\lambda
-=
+\lambda =
 \frac{2}
-{\vec{1}^{\,T}\Sigma^{-1}\vec{1}}
+{\vec{1}^{T}\Sigma^{-1}\vec{1}}.
 $$
 
-Substituting this back into the expression for $\vec{w}$ gives the global minimum-variance portfolio weights:
+Substituting this back into the expression for $\vec{w}$ gives the global minimum-variance portfolio:
 
 $$
 \boxed{
-\vec{w}^{\,*}
+\vec{w}^{,*}
 =
 \frac{\Sigma^{-1}\vec{1}}
-{\vec{1}^{\,T}\Sigma^{-1}\vec{1}}
+{\vec{1}^{T}\Sigma^{-1}\vec{1}}
 }
 $$
 
-This expression is independent of the Lagrange multiplier, so it can be directly implemented using the matrix operations provided by the custom matrix library.
+This expression is independent of the Lagrange multiplier and can therefore be directly implemented using the matrix operations provided by the custom matrix library.
 
-2) optimal_weights_for_return
+---
+## 2. Minimum-Variance Portfolio for a Target Return
 
-A more general optimization problem is to minimize portfolio variance while
-requiring the portfolio to achieve a specified target expected return $r$:
-
-$$
-\min_{\vec{w}} \; \vec{w}^{\,T}\Sigma\vec{w}
-\qquad \text{subject to} \qquad
-\vec{1}^{\,T}\vec{w}=1,
-\qquad
-\vec{\mu}^{\,T}\vec{w}=r
-$$
-
-The first constraint makes sure that all portfolio weights sum to one, while the second requires the portfolio to have an expected return of $r$.
-
-Using two Lagrange multipliers, $\lambda_1$ and $\lambda_2$, the Lagrangian is:
+A more general optimization problem is to minimize portfolio variance while requiring the portfolio to achieve a specified target expected return $r$:
 
 $$
-L(\vec{w},\lambda_1,\lambda_2)
-=
-\vec{w}^{\,T}\Sigma\vec{w}
--
-\lambda_1(\vec{1}^{\,T}\vec{w}-1)
--
-\lambda_2(\vec{\mu}^{\,T}\vec{w}-r)
+\min_{\vec{w}}\quad
+\vec{w}^{T}\Sigma\vec{w}
 $$
 
-Setting the derivative with respect to $\vec{w}$ equal to zero gives:
+subject to
 
 $$
-2\Sigma\vec{w}
--
-\lambda_1\vec{1}
--
-\lambda_2\vec{\mu}
-=
-0
+\vec{1}^{T}\vec{w}=1
 $$
 
-Rearranging and multiplying by $\Sigma^{-1}$ gives:
+and
 
 $$
-\vec{w}
-=
-\frac{\lambda_1}{2}\Sigma^{-1}\vec{1}
-+
-\frac{\lambda_2}{2}\Sigma^{-1}\vec{\mu}
+\vec{\mu}^{T}\vec{w}=r.
 $$
 
-Substituting this expression into the two constraints produces a system of equations in $\lambda_1$ and $\lambda_2$:
+The first constraint ensures that all portfolio weights sum to one, while the second requires the portfolio to have an expected return of $r$.
+
+Using two Lagrange multipliers, $\lambda_1$ and $\lambda_2$, define
 
 $$
-\begin{bmatrix}
-\vec{1}^{\,T}\Sigma^{-1}\vec{1}
-&
-\vec{1}^{\,T}\Sigma^{-1}\vec{\mu}
-\\
-\vec{\mu}^{\,T}\Sigma^{-1}\vec{1}
-&
-\vec{\mu}^{\,T}\Sigma^{-1}\vec{\mu}
-\end{bmatrix}
-\begin{bmatrix}
-\lambda_1 \\
-\lambda_2
-\end{bmatrix}
-=
-\begin{bmatrix}
-2 \\
-2r
-\end{bmatrix}
+L(\vec{w},\lambda_1,\lambda_2) =
+\vec{w}^{,T}\Sigma\vec{w} - \lambda_1(\vec{1}^{,T}\vec{w}-1) - \lambda_2(\vec{\mu}^{,T}\vec{w}-r).
 $$
 
-The coefficients of this system are calculated using matrix operations and
-the system is solved using the custom linear system solver.
-
-Once $\lambda_1$ and $\lambda_2$ have been obtained, they are substituted
-back into
+Setting the derivative with respect to $\vec{w}$ equal to zero gives
 
 $$
-\boxed{
-\vec{w}
-=
-\frac{\lambda_1}{2}\Sigma^{-1}\vec{1}
-+
-\frac{\lambda_2}{2}\Sigma^{-1}\vec{\mu}
-}
+2\Sigma\vec{w} - \lambda_1\vec{1} - \lambda_2\vec{\mu} = 0
+$$
+
+Therefore,
+
+$$
+\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{1} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{\mu}.
+$$
+
+Substituting this expression into the two constraints produces the system
+
+$$ \begin{bmatrix} 
+\vec{1}^{T}\Sigma^{-1}\vec{1} & \vec{1}^{T}\Sigma^{-1}\vec{\mu}\\ 
+\vec{1}^{T}\Sigma^{-1}\vec{\mu} & \vec{\mu}^{T}\Sigma^{-1}\vec{\mu} 
+\end{bmatrix} 
+\begin{bmatrix} 
+\lambda_1\\ 
+\lambda_2 
+\end{bmatrix} = 
+\begin{bmatrix} 
+2\\ 
+2r 
+\end{bmatrix}. $$
+
+The coefficients of this system are calculated using matrix operations and the resulting $2\times2$ system is solved using the custom linear system solver.
+
+Once $\lambda_1$ and $\lambda_2$ have been obtained, they are substituted back into
+
+$$
+\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{1} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{\mu}
 $$
 
 to obtain the minimum-variance portfolio for the specified target return.
+
+Repeating this process for a range of target returns produces the minimum-variance frontier.
+
+---
+## 3. Maximum Sharpe Ratio Portfolio
+
+The Sharpe ratio measures the excess return of a portfolio relative to its volatility:
+
+$$
+S(\vec{w}) =
+\frac{\vec{w}^{,T}\vec{v}}
+{\sqrt{\vec{w}^{T}\Sigma\vec{w}}},
+$$
+
+where
+
+$$
+\vec{v} = \vec{\mu}-r_f\vec{1}
+$$
+
+is the vector of expected excess returns and $r_f$ is the risk-free rate.
+
+Directly maximizing this ratio is inconvenient because it is a ratio of two functions of $\vec{w}$. However, the Sharpe ratio is unchanged when all portfolio weights are multiplied by the same positive constant.
+
+Therefore, we can impose the normalization
+
+$$
+\vec{v}^{T}\vec{w} = 1.
+$$
+
+The problem can then be written as minimizing portfolio variance subject to two constraints:
+
+$$
+\min_{\vec{w}}\quad
+\vec{w}^{T}\Sigma\vec{w}
+$$
+
+subject to
+
+$$
+\vec{v}^{T}\vec{w} = 1
+$$
+
+and
+
+$$
+\vec{1}^{T}\vec{w} = 1.
+$$
+
+Using two Lagrange multipliers gives
+
+$$
+L(\vec{w},\lambda_1,\lambda_2) = \vec{w}^{T}\Sigma\vec{w} - \lambda_1(\vec{v}^{T}\vec{w}-1) - \lambda_2(\vec{1}^{T}\vec{w}-1).
+$$
+
+The first-order condition is
+
+$$
+2\Sigma\vec{w} - \lambda_1\vec{v} - \lambda_2\vec{1} = 0.
+$$
+
+Rearranging gives
+
+$$
+\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{v} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{1}.
+$$
+
+Substituting this into the two constraints produces a $2\times2$ system in $\lambda_1$ and $\lambda_2$:
+
+$$
+\begin{bmatrix}
+\vec{1}^{T}\Sigma^{-1}\vec{v} & \vec{1}^{T}\Sigma^{-1}\vec{1}\\
+\vec{v}^{T}\Sigma^{-1}\vec{v} & \vec{1}^{T}\Sigma^{-1}\vec{v}
+\end{bmatrix}
+\begin{bmatrix}
+\lambda_1\\
+\lambda_2
+\end{bmatrix}
+= \begin{bmatrix}
+2\\
+2
+\end{bmatrix}.
+$$
+
+This system is solved using the custom linear system solver. The resulting multipliers are then substituted into
+
+$$
+\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{a} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{1}
+$$
+
+to obtain the portfolio weights.
+
+The implementation does not impose non-negative weight constraints, meaning that negative weights and therefore short positions are possible.
+
+---
+# Results
+
+For demonstration, the project uses three assets with the following expected returns:
+
+$$
+\vec{\mu} =
+\begin{bmatrix}
+0.10\\
+0.08\\
+0.12
+\end{bmatrix}
+$$
+
+and covariance matrix
+
+$$
+\Sigma =
+\begin{bmatrix}
+0.04 & 0.01 & 0.02\\
+0.01 & 0.09 & 0.03\\
+0.02 & 0.03 & 0.16
+\end{bmatrix}.
+$$
+
+The minimum-variance optimizer can be evaluated across a range of target returns. Plotting portfolio expected return against portfolio volatility produces the characteristic minimum-variance frontier.
+
+![Minimum-Variance Frontier](efficient_frontier.png)
+
+The project also implements maximum-Sharpe-ratio optimization for a specified risk-free rate.
+
+---
+# Implementation
+
+The optimization routines rely on a custom matrix library developed separately from this project.
+
+The library implements matrix operations including:
+
+* Matrix addition and subtraction
+* Matrix multiplication
+* Scalar multiplication
+* Transposition
+* Gaussian elimination
+* Reduced row echelon form
+* Determinants
+* Matrix inversion
+* Matrix rank
+* Linear system solving
+* Vector and matrix operations
+
+This allows the portfolio optimization problems to be implemented directly from their mathematical formulations without relying on NumPy for the underlying linear algebra.
+
+---
+# Limitations
+
+This project is intended as a small educational implementation rather than a production portfolio optimization system.
+
+Some limitations include:
+
+* The covariance matrix and expected returns are manually specified.
+* The implementation does not use historical market data.
+* No transaction costs or other trading costs are considered.
+* No constraints are imposed to prevent short selling. (leading to portfolio weights taking on absurd values on occassion)
+* The custom matrix library is considerably less efficient than established numerical libraries such as NumPy.
+* Matrix inversion is used directly rather than more numerically stable approaches such as solving linear systems.
+
+These limitations are intentional: the primary purpose of the project is to understand and implement the mathematical foundations of portfolio optimization.
+
+---
+# Future Improvements
+
+Possible extensions include:
+
+* Estimating expected returns and covariance matrices from historical data
+* Adding no-short-selling constraints
+* Adding maximum/minimum position constraints
+* Comparing the custom implementation with NumPy/SciPy
+* Testing the optimizer on real market data
+* Adding transaction costs and other portfolio constraints
+
+---
+
+# Conclusion
+
+This project demonstrates how concepts from linear algebra, probability, and constrained optimization can be combined to construct a basic-level portfolio optimizer.
+
+Rather than treating portfolio optimization as a black-box numerical problem, the main optimization results were derived mathematically using Lagrange multipliers and then translated into Python using a custom matrix library.
+
+The resulting implementation provides a small example of how mathematical theory can be taken from a set of equations and turned into working computational code.
