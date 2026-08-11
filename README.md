@@ -2,7 +2,7 @@
 
 A short Python project implementing mean-variance portfolio optimization from first principles using a custom-made matrix library.
 
-The project was built primarily as an exercise in applying linear algebra, probability, and optimization to a quantitative finance problem.
+The project was built primarily as an exercise in applying linear algebra and optimization to a quantitative finance problem.
 
 ## Overview
 
@@ -25,7 +25,7 @@ All matrix operations used by the optimizer are performed using a custom matrix 
 The expected return of a portfolio is
 
 $$
-E(R_p)=\vec{w}^{,T}\vec{\mu}
+E(R_p)=\vec{w}^{T}\vec{\mu}
 $$
 
 where:
@@ -64,7 +64,7 @@ where $E(R_i)$ is the expected return of the $i$-th asset.
 Portfolio variance can be written in matrix form as
 
 $$
-\\mathrm{Var}(R_p) = \vec{w}^{,T}\Sigma\vec{w}
+\\mathrm{Var}(R_p) = \vec{w}^{T}\Sigma\vec{w}
 $$
 
 where $\Sigma$ is the covariance matrix of asset returns.
@@ -92,7 +92,7 @@ The first optimization problem is to minimize portfolio variance subject to the 
 
 $$
 \min_{\vec{w}}\quad
-\vec{w}^{,T}\Sigma\vec{w}
+\vec{w}^{T}\Sigma\vec{w}
 $$
 
 subject to
@@ -106,7 +106,7 @@ where $\vec{1}$ is a vector of ones with the same dimension as $\vec{w}$.
 Using a Lagrange multiplier $\lambda$, define
 
 $$
-L(\vec{w},\lambda) = \vec{w}^{,T}\Sigma\vec{w}  - \lambda(\vec{1}^{,T}\vec{w}-1).
+L(\vec{w},\lambda) = \vec{w}^{T}\Sigma\vec{w}  - \lambda(\vec{1}^{T}\vec{w}-1).
 $$
 
 Setting the derivative with respect to $\vec{w}$ equal to zero gives the first-order condition
@@ -179,7 +179,7 @@ Using two Lagrange multipliers, $\lambda_1$ and $\lambda_2$, define
 
 $$
 L(\vec{w},\lambda_1,\lambda_2) =
-\vec{w}^{,T}\Sigma\vec{w} - \lambda_1(\vec{1}^{,T}\vec{w}-1) - \lambda_2(\vec{\mu}^{,T}\vec{w}-r).
+\vec{w}^{T}\Sigma\vec{w} - \lambda_1(\vec{1}^{T}\vec{w}-1) - \lambda_2(\vec{\mu}^{T}\vec{w}-r).
 $$
 
 Setting the derivative with respect to $\vec{w}$ equal to zero gives
@@ -228,7 +228,7 @@ The Sharpe ratio measures the excess return of a portfolio relative to its volat
 
 $$
 S(\vec{w}) =
-\frac{\vec{w}^{,T}\vec{v}}
+\frac{\vec{w}^{T}\vec{v}}
 {\sqrt{\vec{w}^{T}\Sigma\vec{w}}},
 $$
 
@@ -305,7 +305,7 @@ $$
 This system is solved using the custom linear system solver. The resulting multipliers are then substituted into
 
 $$
-\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{a} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{1}
+\vec{w} = \frac{\lambda_1}{2}\Sigma^{-1}\vec{v} + \frac{\lambda_2}{2}\Sigma^{-1}\vec{1}
 $$
 
 to obtain the portfolio weights.
