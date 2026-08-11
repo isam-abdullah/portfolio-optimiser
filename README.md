@@ -143,8 +143,7 @@ Substituting this back into the expression for $\vec{w}$ gives the global minimu
 
 $$
 \boxed{
-\vec{w}^{,*}
-=
+\vec{w}^{,*} =
 \frac{\Sigma^{-1}\vec{1}}
 {\vec{1}^{T}\Sigma^{-1}\vec{1}}
 }
