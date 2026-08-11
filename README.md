@@ -40,14 +40,14 @@ $$
 where $E(R_i)$ is the expected return on the $i$-th asset
 
 ### Portfolio Variance
-$$\operatorname{Var}(R_p) = \vec{w}^T\Sigma\,\vec{w}$$
+$$\mathrm{Var}(R_p) = \vec{w}^T\Sigma\,\vec{w}$$
 where:
 - $\vec{w}$ is the vector of weights assigned to each asset in the portfolio
 - $\Sigma$ is the covariance matrix
 
 If we have $n$ assets, the Covariance matrix is a $n \times n$ matrix whose $(i, j)^{th}$ entry is the Covariance between the returns of assets $i$ and $j$:
 
-$$ \Sigma_{ij} = \operatorname{Cov}(R_i, R_j)$$
+$$ \Sigma_{ij} = \mathrm{Cov}(R_i, R_j)$$
 where $R_k$ is the return on the $k^{th}$ asset  
 
 ### Optimization
